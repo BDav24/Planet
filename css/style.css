@@ -1,0 +1,94 @@
+body {
+  background: url(texture-noise.png);
+  overflow: hidden;
+  margin: 0;
+  font-size: 14px;
+  font-family: "Helvetica Neue", Helvetica;
+  margin: 0 auto;
+  text-align: center;
+}
+
+svg {
+  pointer-events: all;
+}
+
+circle {
+  fill: #dbe4f0;
+}
+
+path {
+  fill: #aaa;
+  stroke: #fff;
+}
+
+#heard {
+  margin-top: 10px;
+}
+
+#score {
+  position: absolute;
+  top: 30px;
+  right: 50px;
+  min-width: 24px;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 24px;
+  color: #777;
+}
+
+#chart, #header, #footer {
+  position: absolute;
+  top: 0;
+}
+
+rect {
+  fill: none;
+  pointer-events: all;
+}
+
+pre {
+  font-size: 18px;
+}
+
+line {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.string, .regexp {
+  color: #f39;
+}
+
+.keyword {
+  color: #00c;
+}
+
+.comment {
+  color: #777;
+  font-style: oblique;
+}
+
+.number {
+  color: #369;
+}
+
+.class, .special {
+  color: #1181B8;
+}
+
+a:link, a:visited {
+  color: #000;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #666;
+}
+
+.hint {
+  position: absolute;
+  right: 0;
+  width: 1280px;
+  font-size: 12px;
+  color: #999;
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Plan&egrave;te</title>
+
+		<script type="text/javascript" src="d3/d3.js"></script>
+		<script type="text/javascript" src="d3/d3.geo.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/0.2.0/annyang.min.js"></script>
+
+		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
+		<link type="text/css" rel="stylesheet" href="css/animate-custom.css"/>
+		<link type="text/css" rel="stylesheet" href="css/style.css"/>
+	</head>
+
+	<body>
+		<div id="score" class="well tada animated">0</div>
+		<div id="body"></div>
+		<a class="btn btn-large btn-info" onclick="nextCountry()">Pays suivant !</a>
+		<div id="heard"></div>
+
+		<script type="text/javascript">
+
+var feature;
+var height = window.innerHeight - 100;
+
+var projection = d3.geo.azimuthal()
+	.scale(height / 2 * 0.90)
+	.origin([5.40, 28.37])
+	.mode("orthographic")
+	.translate([height / 2, height / 2]);
+
+var currentCountry = null;
+var nextCountry = function() {
+	if (currentCountry != null) currentCountry.style.fill = '#aaa';
+
+	currentCountry = feature[0][Math.round(Math.random() * feature[0].length)];
+	if (currentCountry == null) return nextCountry();
+	currentCountry.style.fill = '#f00';
+
+	moveTo(currentCountry.attributes['origin'].value.split(','));
+}
+
+var circle = d3.geo.greatCircle()
+	.origin(projection.origin());
+
+var path = d3.geo.path()
+	.projection(projection);
+
+var svg = d3.select("#body").append("svg:svg")
+	.attr("width", height)
+	.attr("height", height)
+	//.on("mousedown", mousedown)
+;
+
+d3.json("world-countries.json", function(collection) {
+	feature = svg.selectAll("path")
+		.data(collection.features)
+		.enter().append("svg:path")
+		.attr("d", clip)
+		.attr("name", function(d) { return d.properties.name; })
+		.attr("accepted-names", function(d) { return d.properties.accepted; })
+		.attr("origin", function(d) {
+			var bounds = d3.geo.bounds(d.geometry);
+			return [Math.round((bounds[0][0] + bounds[1][0]) / 2), Math.round((bounds[0][1] + bounds[1][1]) / 2)];
+		});
+
+	feature.append("svg:title")
+		.text(function(d) { return d.properties.name; });
+
+	nextCountry();
+});
+/*
+d3.select(window)
+	.on("mousemove", mousemove)
+	.on("mouseup", mouseup);
+
+var m0,
+	o0;
+
+function mousedown() {
+	m0 = [d3.event.pageX, d3.event.pageY];
+	o0 = projection.origin();
+	d3.event.preventDefault();
+}
+
+function mousemove() {
+	if (m0) {
+		var m1 = [d3.event.pageX, d3.event.pageY],
+			o1 = [o0[0] + (m0[0] - m1[0]) / 8, o0[1] + (m1[1] - m0[1]) / 8];
+		moveTo(o1);
+	}
+}
+
+function mouseup() {
+	if (m0) {
+		mousemove();
+		m0 = null;
+	}
+}
+*/
+function moveTo(origin) {
+	projection.origin(origin);
+	circle.origin(origin);
+	refresh();
+}
+
+function refresh(duration) {
+	(duration ? feature.transition().duration(duration) : feature).attr("d", clip);
+}
+
+function clip(d) {
+	return path(circle.clip(d));
+}
+
+if (annyang) {
+	var score = 0;
+
+	var isCountry = function(term) {
+		console.log(term);
+		var success = compareNames(currentCountry.attributes['name'].value, term);
+		if (!success) {
+			if (currentCountry.attributes['accepted-names'] != null) {
+				var accepted = currentCountry.attributes['accepted-names'].value.split(',');
+				for (var i = 0; i < accepted.length; i++) {
+					if (compareNames(accepted[i], term)) success = true;
+				}
+			}
+			if (!success) {
+				setHeard(term);
+				setTimeout(function() { setHeard(''); }, 3000);
+			}
+		}
+
+		if (success) {
+			score++;
+			setScore(score);
+			nextCountry();
+		}
+	}
+
+	var setScore = function() {
+		var elm = document.getElementById('score');
+		elm.innerHTML = score;
+		var newone = elm.cloneNode(true);
+		elm.parentNode.replaceChild(newone, elm);
+	}
+
+	var setHeard = function(text) {
+		document.getElementById('heard').innerHTML = text;
+	}
+
+	var compareNames = function(name1, name2) {
+		return name1.replace(/[^a-zA-Z]/g, "").toUpperCase() == name2.replace(/[^a-zA-Z]/g, "").toUpperCase();
+	}
+
+	var commands = {
+		'*term': isCountry
+	};
+
+	// Initialize annyang with our commands
+	annyang.setLanguage('fr-FR');
+	annyang.init(commands);
+
+	// Start listening.
+	annyang.start();
+} else {
+	alert('Navigateur non supporte, veuillez utiliser Chrome (derniere version).');
+}
+
+		</script>
+	</body>
+</html>
