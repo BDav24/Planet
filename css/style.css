@@ -29,11 +29,14 @@ path {
   position: absolute;
   top: 30px;
   right: 50px;
-  min-width: 24px;
+  min-width: 30px;
   font-weight: bold;
   font-style: italic;
-  font-size: 24px;
+  font-size: 30px;
   color: #777;
+  color: red;
+  border-color: red;
+  border-width: 2px;
 }
 
 #chart, #header, #footer {
